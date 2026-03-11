@@ -1,0 +1,16 @@
+{
+  "name": "Cognitive Resonance",
+  "short_name": "CogRes",
+  "description": "AI chat with internal state visualization, semantic graphs, and dissonance metering.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111116",
+  "theme_color": "#111116",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
