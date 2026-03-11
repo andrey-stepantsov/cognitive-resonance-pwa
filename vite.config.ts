@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
-  base: '/cognitive-resonance-pwa/',
+  base: process.env.GITHUB_PAGES ? '/cognitive-resonance-pwa/' : '/',
   plugins: [react(), tailwindcss()],
   define: {
     APP_VERSION: JSON.stringify(pkg.version),

@@ -13,6 +13,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@capacitor/cli": "^7.6.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0",
     "@google/genai": "^1.29.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.14",
