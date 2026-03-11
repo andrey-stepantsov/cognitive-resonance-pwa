@@ -1,5 +1,5 @@
 import React from 'react';
-import { Send, BrainCircuit, Activity, Network, Loader2, X, Download, Copy, Check, AlertTriangle, Paperclip, FileText, Diamond, Plus, Trash2, Star, Edit3 } from 'lucide-react';
+import { Send, BrainCircuit, Activity, Network, Loader2, X, Download, Copy, Check, AlertTriangle, Paperclip, FileText, Diamond, Plus, Trash2, Star, Edit3, Upload, Share2 } from 'lucide-react';
 import { SemanticGraph } from './components/SemanticGraph';
 import { DissonanceMeter } from './components/DissonanceMeter';
 import { MarkdownRenderer } from './components/MarkdownRenderer';
@@ -78,10 +78,15 @@ export default function App() {
         )}
 
         {app.activeSidebarTab === 'history' && (
-          <div className="p-3">
-            <button onClick={app.startNewSession} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-lg text-sm font-medium transition-all">
+          <div className="p-3 flex gap-2">
+            <button onClick={app.startNewSession} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-lg text-sm font-medium transition-all">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-              New Session
+              New
+            </button>
+            <input type="file" ref={app.importInputRef} onChange={app.handleImportSession} accept=".json" className="hidden" />
+            <button onClick={() => app.importInputRef.current?.click()} className="flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800/50 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50 rounded-lg text-sm font-medium transition-all" title="Import session from JSON file">
+              <Upload className="w-4 h-4" />
+              Import
             </button>
           </div>
         )}
@@ -165,7 +170,7 @@ export default function App() {
           {!app.isViewMode && (
             <button onClick={app.handleDownloadHistory} disabled={app.messages.length === 0}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 disabled:opacity-30 disabled:cursor-not-allowed hover:text-white bg-zinc-800/30 hover:bg-zinc-800 rounded border border-zinc-800 transition-colors" title="Download Snapshot JSON">
-              <Download className="w-3.5 h-3.5" /> Backup
+              <Share2 className="w-3.5 h-3.5" /> Share
             </button>
           )}
           <button onClick={() => { clearApiKey(); app.setShowApiKeyModal(true); }}

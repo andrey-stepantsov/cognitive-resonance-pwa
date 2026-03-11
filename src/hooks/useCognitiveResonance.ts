@@ -130,6 +130,7 @@ export function useCognitiveResonance() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 
@@ -273,14 +274,64 @@ export function useCognitiveResonance() {
     }
   };
 
-  const handleDownloadHistory = () => {
+  const handleDownloadHistory = async () => {
     if (messages.length === 0) return;
     const exportData = {
       timestamp: new Date().toISOString(),
       config: { model: selectedModel, systemPrompt: sessionSystemPrompt, gemId: activeGemId },
       messages: messages.map(msg => ({ role: msg.role, content: msg.content, ...(msg.internalState ? { internalState: msg.internalState } : {}) }))
     };
-    downloadJSON(exportData, `cognitive-resonance-${Date.now()}.json`);
+    const filename = `cognitive-resonance-${Date.now()}.json`;
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const file = new File([blob], filename, { type: 'application/json' });
+
+    // Use Web Share API if available (mobile share sheet)
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ title: 'Cognitive Resonance Session', files: [file] });
+        return;
+      } catch (e: any) {
+        if (e.name === 'AbortError') return; // User cancelled
+      }
+    }
+    // Fallback: direct download
+    downloadJSON(exportData, filename);
+  };
+
+  const handleImportSession = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const data = JSON.parse(reader.result as string);
+        if (!data.messages || !Array.isArray(data.messages)) {
+          alert('Invalid session file: missing messages array.');
+          return;
+        }
+        // Reconstruct messages with modelTurnIndex
+        let modelCount = 0;
+        const importedMessages: Message[] = data.messages.map((msg: any) => {
+          const m: Message = { role: msg.role, content: msg.content, internalState: msg.internalState };
+          if (msg.role === 'model' && !msg.isError) { m.modelTurnIndex = modelCount++; }
+          if (msg.isError) m.isError = true;
+          return m;
+        });
+        setMessages(importedMessages);
+        setActiveSessionId(null); // Will get a new ID on auto-save
+        setIsViewMode(false);
+        if (data.config) {
+          setSelectedModel(data.config.model || selectedModel);
+          setSessionSystemPrompt(data.config.systemPrompt || sessionSystemPrompt);
+          if (data.config.gemId) setActiveGemId(data.config.gemId);
+        }
+        setIsHistorySidebarOpen(false);
+      } catch {
+        alert('Failed to parse session file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleLoadSession = async (sessionId: string) => {
@@ -367,10 +418,10 @@ export function useCognitiveResonance() {
     sessionSystemPrompt, editingGem, setEditingGem, creatingGem, setCreatingGem, draftGem, setDraftGem,
     isViewMode, historyFilename, attachedFiles, setAttachedFiles,
     apiKey, showApiKeyModal, setShowApiKeyModal, apiKeyInput, setApiKeyInput,
-    messagesEndRef, fileInputRef,
+    messagesEndRef, fileInputRef, importInputRef,
     modelMessages, activeTurnIndex, activeState, isViewingHistory, historyData, filteredMarkers,
     handleSetApiKey, handleSelectGem, handleSaveGem, handleDeleteGem, handleSetDefaultGem,
     handleSubmit, handleDownloadHistory, handleLoadSession, handleSearchResultClick,
-    handleDeleteSession, startRenameSession, handleRenameSessionSubmit, startNewSession, handleFileSelect,
+    handleDeleteSession, startRenameSession, handleRenameSessionSubmit, startNewSession, handleFileSelect, handleImportSession,
   };
 }
