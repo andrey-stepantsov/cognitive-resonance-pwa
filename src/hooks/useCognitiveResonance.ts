@@ -87,7 +87,11 @@ export function useCognitiveResonance() {
 
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [isHistorySidebarOpen, setIsHistorySidebarOpen] = useState(false);
+  const [isHistorySidebarOpen, setIsHistorySidebarOpenRaw] = useState(false);
+  const setIsHistorySidebarOpen = (open: boolean) => {
+    if (open) loadAllSessions().then(setSessions);
+    setIsHistorySidebarOpenRaw(open);
+  };
   const [historySearchQuery, setHistorySearchQuery] = useState('');
   const [activeSidebarTab, setActiveSidebarTab] = useState<'history' | 'search'>('history');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -153,6 +157,8 @@ export function useCognitiveResonance() {
       };
       saveSession(activeSessionId || '', data).then(id => {
         if (!activeSessionId) setActiveSessionId(id);
+        // Refresh sessions list so sidebar stays in sync
+        loadAllSessions().then(setSessions);
       });
     }
   }, [messages, selectedModel, sessionSystemPrompt, activeGemId, isViewMode, activeSessionId]);
