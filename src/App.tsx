@@ -158,7 +158,7 @@ export default function App() {
           <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] animate-pulse" />
           <h1 className="text-sm font-semibold tracking-wide text-zinc-100 flex items-center gap-2">
             Cognitive Resonance
-            <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded text-[10px] font-mono border border-zinc-700/50">PWA</span>
+            <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded text-[10px] font-mono border border-zinc-700/50">v{APP_VERSION}</span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
