@@ -208,7 +208,20 @@ export default function App() {
                 {app.isViewMode ? `Resonance History: ${app.historyFilename}` : 'Cognitive Resonance'}
               </h1>
             </div>
-            <div className="flex items-center gap-2"><button className="lg:hidden p-2 -mr-2 text-zinc-400 hover:text-zinc-100" onClick={() => app.setIsRightSidebarOpen(true)}><Network className="w-5 h-5" /></button></div>
+            <div className="flex items-center gap-2">
+              {app.activeState?.dissonanceScore != null && (
+                <button onClick={() => app.setIsDissonancePanelOpen(true)} className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums transition-all border",
+                  app.activeState.dissonanceScore <= 30 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                  app.activeState.dissonanceScore <= 60 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                  "bg-red-500/10 text-red-400 border-red-500/20 animate-pulse"
+                )} title={app.activeState.dissonanceReason || 'Dissonance Score'}>
+                  <Activity className="w-3.5 h-3.5" />
+                  {app.activeState.dissonanceScore}
+                </button>
+              )}
+              <button className="lg:hidden p-2 -mr-2 text-zinc-400 hover:text-zinc-100" onClick={() => app.setIsRightSidebarOpen(true)}><Network className="w-5 h-5" /></button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
