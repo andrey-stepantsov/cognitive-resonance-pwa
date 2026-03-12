@@ -165,22 +165,31 @@ export async function shareJSON(data: any, filename: string): Promise<boolean> {
   try {
     const jsonString = JSON.stringify(data, null, 2);
     
-    // The Capacitor Android IPC bridge throws TransactionTooLargeException
-    // and physically hard-crashes if a single string arg > 500KB - 1MB.
-    // We split the payload into 250KB chunks to safely bridge it to OS.
+    // For small payloads, share as text directly — avoids FileProvider entirely.
+    if (jsonString.length < 100 * 1024) {
+      try {
+        await Share.share({
+          title: 'Cognitive Resonance Session',
+          text: jsonString,
+          dialogTitle: `Share ${filename}`,
+        });
+      } catch {
+        // User cancelled — that's fine
+      }
+      return true;
+    }
+    
+    // For larger payloads, write to file in chunks, then share via file URI.
     const CHUNK_SIZE = 250 * 1024;
     
-    // Write first chunk to initialize/overwrite the file
     let currentChunk = jsonString.substring(0, CHUNK_SIZE);
-    
-    const fileResult = await Filesystem.writeFile({
+    await Filesystem.writeFile({
       path: filename,
       data: currentChunk,
       directory: Directory.Cache,
       encoding: Encoding.UTF8,
     });
     
-    // Append any subsequent chunks
     for (let i = CHUNK_SIZE; i < jsonString.length; i += CHUNK_SIZE) {
       currentChunk = jsonString.substring(i, i + CHUNK_SIZE);
       await Filesystem.appendFile({
@@ -191,22 +200,26 @@ export async function shareJSON(data: any, filename: string): Promise<boolean> {
       });
     }
 
+    // Use getUri() to get a properly resolved file:// URI for the written file.
+    const uriResult = await Filesystem.getUri({
+      path: filename,
+      directory: Directory.Cache,
+    });
+
     try {
       await Share.share({
         title: 'Cognitive Resonance Session',
-        url: fileResult.uri,
+        url: uriResult.uri,
+        dialogTitle: `Share ${filename}`,
       });
-    } catch (shareError: any) {
-      // "Share canceled" is normal user cancellation — not an error.
-      // Any other rejection is a real problem but the file was still written,
-      // so we return true to prevent the caller from falling through
-      // to web APIs (navigator.share / anchor-click) that crash in Android WebView.
-      console.warn('Share dialog closed:', shareError?.message || shareError);
+    } catch {
+      // User cancelled or share sheet issue — not a fatal error
     }
     
     return true;
   } catch (error) {
-    console.error('Error writing file for share:', error);
+    console.error('Error in shareJSON:', error);
     return false;
   }
 }
+
