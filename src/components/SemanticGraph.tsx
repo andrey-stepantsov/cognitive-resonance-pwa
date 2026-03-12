@@ -35,7 +35,9 @@ export const SemanticGraph: React.FC<SemanticGraphProps> = ({ nodes, edges, onNo
     svg.selectAll("*").remove();
 
     const graphNodes = nodes.map(d => ({ ...d }));
-    const graphEdges = edges.map(d => ({ ...d }));
+    const graphEdges = edges
+      .filter(e => graphNodes.some(n => n.id === e.source) && graphNodes.some(n => n.id === e.target))
+      .map(d => ({ ...d }));
 
     const simulation = d3.forceSimulation(graphNodes as any)
       .force("link", d3.forceLink(graphEdges).id((d: any) => d.id).distance(120))
