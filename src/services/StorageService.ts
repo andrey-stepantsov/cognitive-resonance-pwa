@@ -3,6 +3,10 @@
  * Replaces the VS Code extension host's filesystem operations.
  */
 
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
+
 const DB_NAME = 'cognitive-resonance';
 const DB_VERSION = 1;
 const SESSIONS_STORE = 'sessions';
@@ -149,4 +153,31 @@ export function downloadJSON(data: any, filename: string): void {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ── Native Mobile Sharing ────────────────────────────────────
+
+export async function shareJSON(data: any, filename: string): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) {
+    return false;
+  }
+  
+  try {
+    const fileResult = await Filesystem.writeFile({
+      path: filename,
+      data: JSON.stringify(data, null, 2),
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+    });
+    
+    await Share.share({
+      title: 'Cognitive Resonance Session',
+      url: fileResult.uri,
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error sharing file natively:', error);
+    return false;
+  }
 }

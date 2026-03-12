@@ -4,7 +4,7 @@ import { Node, Edge } from '../components/SemanticGraph';
 import {
   saveSession, loadAllSessions, loadSession, deleteSession as deleteSessionFromDB,
   renameSession as renameSessionInDB, saveGemsConfig, loadGemsConfig, loadApiKey, saveApiKey,
-  downloadJSON, type SessionRecord
+  downloadJSON, shareJSON, type SessionRecord
 } from '../services/StorageService';
 import { initGemini, generateResponse, fetchModels } from '../services/GeminiService';
 import { searchHistory } from '../services/SearchService';
@@ -282,10 +282,15 @@ export function useCognitiveResonance() {
       messages: messages.map(msg => ({ role: msg.role, content: msg.content, ...(msg.internalState ? { internalState: msg.internalState } : {}) }))
     };
     const filename = `cognitive-resonance-${Date.now()}.json`;
+
+    // Try native share first (iOS/Android)
+    const sharedNatively = await shareJSON(exportData, filename);
+    if (sharedNatively) return;
+
+    // Web fallback: Share API or direct download
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const file = new File([blob], filename, { type: 'application/json' });
 
-    // Use Web Share API if available (mobile share sheet)
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ title: 'Cognitive Resonance Session', files: [file] });
@@ -294,7 +299,7 @@ export function useCognitiveResonance() {
         if (e.name === 'AbortError') return; // User cancelled
       }
     }
-    // Fallback: direct download
+    
     downloadJSON(exportData, filename);
   };
 
