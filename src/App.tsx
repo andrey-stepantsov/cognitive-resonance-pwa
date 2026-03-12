@@ -248,7 +248,7 @@ export default function App() {
             )}
 
             {app.messages.map((msg, idx) => (
-              <div key={idx} id={`message-${idx}`} className={cn("flex w-full flex-col scroll-mt-24", msg.role === 'user' ? "items-end" : "items-start")}>
+              <div key={idx} id={`message-${idx}`} className={cn("flex w-full flex-col scroll-mt-24 min-w-0 break-words", msg.role === 'user' ? "items-end" : "items-start")}>
                 {msg.isError ? (
                   <div className="max-w-[80%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed bg-red-950/60 text-red-200 border border-red-800/60 rounded-bl-sm">
                     <div className="flex items-start gap-2.5">
@@ -264,8 +264,8 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  <div className={cn("max-w-[80%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed",
-                    msg.role === 'user' ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20 rounded-br-sm" : "bg-zinc-800/80 text-zinc-200 border border-zinc-700/50 rounded-bl-sm prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:m-0"
+                  <div className={cn("max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed overflow-hidden break-words min-w-0",
+                    msg.role === 'user' ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20 rounded-br-sm" : "bg-zinc-800/80 text-zinc-200 border border-zinc-700/50 rounded-bl-sm prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:m-0 w-full"
                   )}>
                     {msg.role === 'model' && !msg.isError ? <MarkdownRenderer content={msg.content} /> : msg.content}
                   </div>
