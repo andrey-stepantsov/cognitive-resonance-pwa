@@ -163,13 +163,34 @@ export async function shareJSON(data: any, filename: string): Promise<boolean> {
   }
   
   try {
+    const jsonString = JSON.stringify(data, null, 2);
+    
+    // The Capacitor Android IPC bridge throws TransactionTooLargeException
+    // and physically hard-crashes if a single string arg > 500KB - 1MB.
+    // We split the payload into 250KB chunks to safely bridge it to OS.
+    const CHUNK_SIZE = 250 * 1024;
+    
+    // Write first chunk to initialize/overwrite the file
+    let currentChunk = jsonString.substring(0, CHUNK_SIZE);
+    
     const fileResult = await Filesystem.writeFile({
       path: filename,
-      data: JSON.stringify(data, null, 2),
+      data: currentChunk,
       directory: Directory.Cache,
       encoding: Encoding.UTF8,
     });
     
+    // Append any subsequent chunks
+    for (let i = CHUNK_SIZE; i < jsonString.length; i += CHUNK_SIZE) {
+      currentChunk = jsonString.substring(i, i + CHUNK_SIZE);
+      await Filesystem.appendFile({
+        path: filename,
+        data: currentChunk,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8,
+      });
+    }
+
     await Share.share({
       title: 'Cognitive Resonance Session',
       url: fileResult.uri,
