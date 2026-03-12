@@ -24,13 +24,41 @@ export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart }) => {
   useEffect(() => {
     let isMounted = true;
 
+    // Helper to safely wrap node labels that contain backticks or parens in double quotes
+    // Flowchart specific node shapes: [label], (label), {label}, ((label)), >label], etc.
+    const sanitizeMermaid = (mermaidStr: string): string => {
+      if (!mermaidStr || (!mermaidStr.includes('graph ') && !mermaidStr.includes('flowchart '))) return mermaidStr;
+
+      // This regex matches node definitions robustly regardless of internal spaces
+      const nodeLabelRegex = /([A-Za-z0-9_-]+)(\[|\(|\{|\(\(|>|\])(.*?)(]|\)|\}|\)\)|])(?=[\s\n-]|$)/g;
+
+      return mermaidStr.replace(nodeLabelRegex, (match, id, open, text: string, close) => {
+        const trimmedText = text.trim();
+        
+        // If the inner text is already quoted, leave it alone
+        if (trimmedText.startsWith('"') && trimmedText.endsWith('"')) {
+          return match;
+        }
+
+        // Only quote the text if it contains dangerous characters like backticks, quotes, or parens
+        if (/[`"()]/.test(text)) {
+          // Inner double quotes break the outer double quote wrapper, so convert them to single quotes
+          const escapedText = trimmedText.replace(/"/g, "'");
+          return `${id}${open}"${escapedText}"${close}`;
+        }
+        
+        return match;
+      });
+    };
+
     const renderDiagram = async () => {
       if (!chart || chart.trim() === '') return;
       
       try {
         setError(null);
+        const sanitizedChart = sanitizeMermaid(chart);
         const id = `mermaid-container-${Math.random().toString(36).substring(2, 9)}`;
-        const { svg } = await mermaid.render(id, chart);
+        const { svg } = await mermaid.render(id, sanitizedChart);
         
         if (isMounted) {
           setSvgContent(svg);
