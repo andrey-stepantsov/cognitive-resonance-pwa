@@ -24,31 +24,41 @@ export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart }) => {
   useEffect(() => {
     let isMounted = true;
 
-    // Helper to safely wrap node labels that contain backticks or parens in double quotes
-    // Flowchart specific node shapes: [label], (label), {label}, ((label)), >label], etc.
+    // Sanitize common AI-generated Mermaid syntax errors
     const sanitizeMermaid = (mermaidStr: string): string => {
-      if (!mermaidStr || (!mermaidStr.includes('graph ') && !mermaidStr.includes('flowchart '))) return mermaidStr;
+      if (!mermaidStr) return mermaidStr;
 
-      // This regex matches node definitions robustly regardless of internal spaces
-      const nodeLabelRegex = /([A-Za-z0-9_-]+)(\[|\(|\{|\(\(|>|\])(.*?)(]|\)|\}|\)\)|])(?=[\s\n-]|$)/g;
+      let result = mermaidStr;
 
-      return mermaidStr.replace(nodeLabelRegex, (match, id, open, text: string, close) => {
-        const trimmedText = text.trim();
-        
-        // If the inner text is already quoted, leave it alone
-        if (trimmedText.startsWith('"') && trimmedText.endsWith('"')) {
-          return match;
+      // 1. Remove stray double-quotes that aren't inside node brackets.
+      //    AI often generates: -->"B(Process 1") instead of --> B["Process 1"]
+      //    Process line-by-line to be safe.
+      result = result.split('\n').map(line => {
+        // Skip the first line (graph/flowchart declaration)
+        if (/^\s*(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph)\b/.test(line)) {
+          return line;
         }
+        // Remove stray quotes that aren't inside bracket delimiters [" "], (" "), {" "}
+        // First, strip all double-quotes, then re-add them where needed
+        let cleaned = line.replace(/"/g, '');
+        return cleaned;
+      }).join('\n');
 
-        // Only quote the text if it contains dangerous characters like backticks, quotes, or parens
-        if (/[`"()]/.test(text)) {
-          // Inner double quotes break the outer double quote wrapper, so convert them to single quotes
-          const escapedText = trimmedText.replace(/"/g, "'");
-          return `${id}${open}"${escapedText}"${close}`;
-        }
-        
-        return match;
+      // 2. Quote node labels that contain parentheses or special chars
+      //    e.g. B(Process 1) -> B["Process 1"] since () is a shape delimiter
+      //    Match: ID(text with spaces) where text has spaces (likely meant as label, not shape)
+      result = result.replace(/([A-Za-z0-9_]+)\(([^)]*\s[^)]*)\)/g, (match, id, text) => {
+        return `${id}["${text}"]`;
       });
+
+      // 3. Fix decision nodes: C{Decision Point} is valid Mermaid rhombus
+      //    but C{text} with special chars needs quoting
+      result = result.replace(/([A-Za-z0-9_]+)\{([^}]*[`"()][^}]*)\}/g, (match, id, text) => {
+        const clean = text.replace(/"/g, "'");
+        return `${id}{"${clean}"}`;
+      });
+
+      return result;
     };
 
     const renderDiagram = async () => {
