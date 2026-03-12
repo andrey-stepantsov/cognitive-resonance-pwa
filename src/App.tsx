@@ -203,7 +203,7 @@ export default function App() {
         </div>
 
         {/* Center: Chat */}
-        <div className="flex-1 flex flex-col w-full lg:min-w-[400px] max-w-3xl mx-auto lg:border-x border-zinc-800/30 bg-[#0a0a0a] shadow-2xl z-10">
+        <div className="flex-1 flex flex-col min-w-0 w-full lg:min-w-[400px] max-w-3xl mx-auto lg:border-x border-zinc-800/30 bg-[#0a0a0a] shadow-2xl z-10">
           <div className="p-4 lg:p-6 border-b border-zinc-800/50 flex items-center justify-between bg-zinc-900/20 backdrop-blur-md relative">
             <div className="flex items-center"><button className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-zinc-100" onClick={() => app.setIsDissonancePanelOpen(true)}><Activity className="w-5 h-5" /></button></div>
             <div className="flex items-center gap-3 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
