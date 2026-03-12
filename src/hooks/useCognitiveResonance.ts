@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Type } from '@google/genai';
+import { Capacitor } from '@capacitor/core';
 import { Node, Edge } from '../components/SemanticGraph';
 import {
   saveSession, loadAllSessions, loadSession, deleteSession as deleteSessionFromDB,
@@ -296,6 +297,9 @@ export function useCognitiveResonance() {
     // Try native share first (iOS/Android)
     const sharedNatively = await shareJSON(exportData, filename);
     if (sharedNatively) return;
+
+    // On native platforms, never fall through to web APIs — they crash Android WebView.
+    if (Capacitor.isNativePlatform()) return;
 
     // Web fallback: Share API or direct download
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });

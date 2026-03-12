@@ -191,14 +191,22 @@ export async function shareJSON(data: any, filename: string): Promise<boolean> {
       });
     }
 
-    await Share.share({
-      title: 'Cognitive Resonance Session',
-      url: fileResult.uri,
-    });
+    try {
+      await Share.share({
+        title: 'Cognitive Resonance Session',
+        url: fileResult.uri,
+      });
+    } catch (shareError: any) {
+      // "Share canceled" is normal user cancellation — not an error.
+      // Any other rejection is a real problem but the file was still written,
+      // so we return true to prevent the caller from falling through
+      // to web APIs (navigator.share / anchor-click) that crash in Android WebView.
+      console.warn('Share dialog closed:', shareError?.message || shareError);
+    }
     
     return true;
   } catch (error) {
-    console.error('Error sharing file natively:', error);
+    console.error('Error writing file for share:', error);
     return false;
   }
 }
