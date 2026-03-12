@@ -54,7 +54,7 @@ export default function App() {
 
       {/* Session Sidebar */}
       <div className={cn(
-        "fixed top-0 left-0 bottom-0 w-[280px] bg-zinc-900 border-r border-zinc-800/50 shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col",
+        "fixed top-0 left-0 bottom-0 w-[280px] bg-zinc-900 border-r border-zinc-800/50 shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
         app.isHistorySidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
@@ -154,7 +154,7 @@ export default function App() {
       </div>
 
       {/* Header */}
-      <header className="flex-none px-6 py-4 border-b border-zinc-800/50 bg-zinc-900/30 flex items-center justify-between backdrop-blur-md sticky top-0 z-20">
+      <header className="flex-none px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-4 border-b border-zinc-800/50 bg-zinc-900/30 flex items-center justify-between backdrop-blur-md sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <button onClick={() => app.setIsHistorySidebarOpen(true)} className="p-1.5 text-zinc-400 hover:text-indigo-400 bg-zinc-800/30 hover:bg-zinc-800 rounded-md transition-colors" title="Session History">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
@@ -184,7 +184,7 @@ export default function App() {
         {app.isDissonancePanelOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => app.setIsDissonancePanelOpen(false)} />}
 
         {/* Left Sidebar: Dissonance */}
-        <div className={cn("fixed inset-y-0 left-0 z-50 w-[85vw] sm:w-80 bg-zinc-950 lg:bg-zinc-900/30 border-r border-zinc-800/50 flex flex-col p-6",
+        <div className={cn("fixed inset-y-0 left-0 z-50 w-[85vw] sm:w-80 bg-zinc-950 lg:bg-zinc-900/30 border-r border-zinc-800/50 flex flex-col pt-[max(1.5rem,env(safe-area-inset-top))] px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:py-6 lg:px-6",
           "transform transition-transform duration-300 ease-in-out lg:relative lg:transform-none lg:z-auto",
           app.isDissonancePanelOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}>
@@ -281,7 +281,7 @@ export default function App() {
           </div>
 
           {!app.isViewMode && (
-            <div className="p-4 bg-zinc-900/50 border-t border-zinc-800/50 flex flex-col gap-2 relative z-20">
+            <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-zinc-900/50 border-t border-zinc-800/50 flex flex-col gap-2 relative z-20">
               <div className="flex items-center gap-2 px-1 pb-1">
                 <button onClick={() => app.setIsGemSidebarOpen(true)} className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-zinc-800/40 hover:bg-zinc-800 text-indigo-300 border border-indigo-500/20 rounded-lg transition-colors shadow-sm" title="Manage Gems">
                   <Diamond className="w-3.5 h-3.5" />
@@ -326,7 +326,8 @@ export default function App() {
         </div>
 
         {/* Right Sidebar: Semantic Graph */}
-        <div className={cn("fixed inset-y-0 right-0 z-50 w-[85vw] sm:w-96 bg-zinc-950 lg:bg-zinc-900/30 border-l border-zinc-800/50 flex flex-col p-6",
+        {app.isRightSidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => app.setIsRightSidebarOpen(false)} />}
+        <div className={cn("fixed inset-y-0 right-0 z-50 w-[85vw] sm:w-96 bg-zinc-950 lg:bg-zinc-900/30 border-l border-zinc-800/50 flex flex-col pt-[max(1.5rem,env(safe-area-inset-top))] px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:py-6 lg:px-6",
           "transform transition-transform duration-300 ease-in-out lg:relative lg:transform-none lg:z-auto",
           app.isRightSidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}>
@@ -377,7 +378,7 @@ export default function App() {
 
         {/* Gem Sidebar */}
         {app.isGemSidebarOpen && <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={() => app.setIsGemSidebarOpen(false)} />}
-        <div className={cn("fixed top-0 right-0 bottom-0 w-[340px] bg-zinc-900 border-l border-zinc-800/50 shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col",
+        <div className={cn("fixed top-0 right-0 bottom-0 w-[340px] bg-zinc-900 border-l border-zinc-800/50 shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
           app.isGemSidebarOpen ? "translate-x-0" : "translate-x-full"
         )}>
           <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
