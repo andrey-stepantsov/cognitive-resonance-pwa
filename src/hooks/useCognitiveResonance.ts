@@ -38,6 +38,11 @@ export interface InternalState {
   dissonanceReason: string;
   semanticNodes: Node[];
   semanticEdges: Edge[];
+  tokenUsage?: {
+    totalTokenCount?: number;
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+  };
 }
 
 export interface GemProfile {
@@ -260,7 +265,12 @@ export function useCognitiveResonance() {
       const data = await generateResponse(selectedModel, newMessages, sessionSystemPrompt, responseSchema);
       const newState: InternalState = {
         dissonanceScore: data.dissonanceScore, dissonanceReason: data.dissonanceReason,
-        semanticNodes: data.semanticNodes || [], semanticEdges: data.semanticEdges || []
+        semanticNodes: data.semanticNodes || [], semanticEdges: data.semanticEdges || [],
+        tokenUsage: data.usageMetadata ? {
+          totalTokenCount: data.usageMetadata.totalTokenCount,
+          promptTokenCount: data.usageMetadata.promptTokenCount,
+          candidatesTokenCount: data.usageMetadata.candidatesTokenCount
+        } : undefined
       };
       setMessages(prev => {
         const modelCount = prev.filter(m => m.role === 'model').length;

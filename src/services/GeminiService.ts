@@ -50,7 +50,13 @@ export async function generateResponse(
     throw new Error('Empty response from model');
   }
 
-  return typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+  const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+  
+  if (response.usageMetadata) {
+    parsed.usageMetadata = response.usageMetadata;
+  }
+  
+  return parsed;
 }
 
 export async function fetchModels(): Promise<any[]> {

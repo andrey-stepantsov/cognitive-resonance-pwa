@@ -1,5 +1,9 @@
 import React from 'react';
-import { Send, BrainCircuit, Activity, Network, Loader2, X, Download, Copy, Check, AlertTriangle, Paperclip, FileText, Diamond, Plus, Trash2, Star, Edit3, Upload, Share2 } from 'lucide-react';
+import {
+  Send, BrainCircuit, Activity, Network, Archive, Search, Download, Trash2, Edit2, Play, Check, X,
+  Settings, Save, FileJson, AlertTriangle, Plus, Copy, Image as ImageIcon, FileText, ChevronRight, Share2, Diamond, LayoutGrid, List,
+  Database, Loader2, Paperclip, Star, Edit3, Upload
+} from 'lucide-react';
 import { SemanticGraph } from './components/SemanticGraph';
 import { DissonanceMeter } from './components/DissonanceMeter';
 import { MarkdownRenderer } from './components/MarkdownRenderer';
@@ -209,6 +213,14 @@ export default function App() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              {app.activeState?.tokenUsage?.totalTokenCount != null && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums transition-all border bg-zinc-800/50 text-zinc-400 border-zinc-700/50 shadow-inner" title={`Context Size: ${app.activeState.tokenUsage.totalTokenCount.toLocaleString()} tokens`}>
+                  <Database className="w-3.5 h-3.5 opacity-70" />
+                  {app.activeState.tokenUsage.totalTokenCount >= 1000 
+                    ? `${(app.activeState.tokenUsage.totalTokenCount / 1000).toFixed(1)}k` 
+                    : app.activeState.tokenUsage.totalTokenCount}
+                </div>
+              )}
               {app.activeState?.dissonanceScore != null && (
                 <button onClick={() => app.setIsDissonancePanelOpen(true)} className={cn(
                   "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums transition-all border",
