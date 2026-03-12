@@ -120,7 +120,7 @@ export default function App() {
                     {s.customName || s.preview}
                     <div className="text-[10px] text-zinc-600 mt-0.5">{new Date(s.timestamp).toLocaleString()}</div>
                   </div>
-                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-all shrink-0">
+                  <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 flex items-center gap-1 transition-all shrink-0">
                     <button onClick={(e) => app.startRenameSession(s.id, s.customName || s.preview, e)} className="p-1.5 text-zinc-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-md transition-colors" title="Rename">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </button>
